@@ -23,5 +23,8 @@ class Post(models.Model):
     # параметра auto_now дата будет обновляться автоматически во время
     # сохранения объекта.
 
+    class Meta:
+        ordering = ['-publish']
+
     def __str__(self):
         return self.title
