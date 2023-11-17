@@ -2,6 +2,11 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=Post.Status.PUBLISHED)
+
 class Post(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'DF', 'Draft'
@@ -36,6 +41,9 @@ class Post(models.Model):
                               choices=Status.choices,
                               default=Status.DRAFT)
 
+    objects = models.Manager()  # менеджер, применяемый по умолчанию
+    published = PublishedManager()  # конкретно-прикладной менеджер
+
     class Meta:
         ordering = ['-publish']
         indexes = [
@@ -44,3 +52,47 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+
+# python manage.py shell
+#
+# from django.db import models
+# from django.utils import timezone
+# from django.contrib.auth.models import User
+# from  blog.models import Post
+#
+#
+#
+# .objects.get
+# user = User.objects.get(username='devmanyur')
+# DoesNotExist - нет объекта
+# MultipleObjectsReturned - много объектов
+#
+# >>>> save() <<<
+# post3 = Post(title='Who Another post3',slug='Who-another-post3', body='Who  Post body3.', author=user)
+# post3.save()
+#
+#
+# .objects.all()
+# Post.objects.all()
+#
+#
+# .objects.filter()
+# Post.objects.filter(publish__year=2023, author__username='devmanyur')
+#
+#
+# exclude() исключать
+# Post.objects.filter(publish__year=2022).exclude(title__startswith='Why')
+#
+#
+# order_by() сортировка
+# Post.objects.order_by('title')
+# Post.objects.order_by('-title')
+#
+#
+#delete() удалить
+# post = Post.objects.get(id=1)
+# post.delete()
+
